@@ -1,56 +1,65 @@
-package org.example
-
-import java.util.Scanner
-import java.time.format.DateTimeFormatter
-
 fun main() {
     val reader = Scanner(System.`in`)
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    val usuario1 = Usuario(1, "Juani", "Cruzado")
-    val cuenta1 = Cuenta("123456", 10000.0, usuario1)
-    val usuario2 = Usuario(2, "Joaquin", "Ardevol")
-    val cuenta2 = Cuenta("654321", 10000.0, usuario2)
+    val banco = Banco()
+    println("=== Sistema Bancario ===")
+    print("¿Cuántos usuarios desea registrar? ")
+    val cantidadUsuarios = reader.nextInt()
+    reader.nextLine()
+
+    repeat(cantidadUsuarios) { i ->
+        println("=== Registro de usuario ${i + 1} ===")
+        print("Ingrese ID: ")
+        val id = reader.nextInt()
+        reader.nextLine()
+
+        print("Ingrese nombre: ")
+        val nombre = reader.nextLine()
+
+        print("Ingrese apellido: ")
+        val apellido = reader.nextLine()
+
+        print("Ingrese DNI: ")
+        val dni = reader.nextLine()
+
+        print("Ingrese saldo inicial: ")
+        val saldo = reader.nextDouble()
+        reader.nextLine()
+
+        val usuario = Usuario(id, nombre, apellido, dni)
+        banco.agregarCuenta(usuario, saldo)
+    }
+
+    println("=== Todas las cuentas registradas ===")
+    banco.listarCuentas().forEach {
+        println("Usuario: ${it.usuario.nombre} ${it.usuario.apellido} | Cuenta: ${it.numeroCuenta} | Saldo: ${it.obtenerSaldo()}")
+    }
 
     println("Bienvenido al sistema de gestión de cuentas bancarias.")
-
-    var cuentaSeleccionada: Cuenta? = null
     var opcionUsuario: Int
+    var cuentaSeleccionada: Cuenta? = null
 
-    // Selección de usuario
     do {
-        println(
-            """
-            === Elección de usuario ===
-            1. Juani
-            2. Joaquín 
-            0. Salir
-            """.trimIndent()
-        )
-        print("Seleccione un usuario: ")
+        println("Seleccione un usuario:")
+        banco.listarCuentas().forEachIndexed { index, cuenta ->
+            println("${index + 1}. ${cuenta.usuario.nombre} ${cuenta.usuario.apellido}")
+        }
+        println("0. Salir")
+        print("Opción: ")
         opcionUsuario = reader.nextInt()
 
-        when (opcionUsuario) {
-            1 -> {
-                cuentaSeleccionada = cuenta1
-                println("Usuario: ${usuario1.nombre} ${usuario1.apellido}")
-                println("Cuenta Nº: ${cuenta1.numeroCuenta}")
-                println("Saldo inicial: ${cuenta1.obtenerSaldo()}")
-            }
-            2 -> {
-                cuentaSeleccionada = cuenta2
-                println("Usuario: ${usuario2.nombre} ${usuario2.apellido}")
-                println("Cuenta Nº: ${cuenta2.numeroCuenta}")
-                println("Saldo inicial: ${cuenta2.obtenerSaldo()}")
-            }
-            0 -> println("Saliendo...")
-            else -> println("Opción inválida")
+        cuentaSeleccionada = if (opcionUsuario in 1..banco.listarCuentas().size) {
+            banco.listarCuentas()[opcionUsuario - 1]
+        } else null
+
+        if (opcionUsuario != 0 && cuentaSeleccionada == null) {
+            println("Opción inválida")
         }
-    } while (opcionUsuario !in listOf(0, 1, 2))
+    } while (opcionUsuario != 0 && cuentaSeleccionada == null)
 
     if (cuentaSeleccionada == null) return
 
-    // Menú principal
     var opcionAccion: Int
     do {
         println(
@@ -74,77 +83,41 @@ fun main() {
                 if (monto > 0) {
                     cuentaSeleccionada.depositar(monto)
                     println("Depósito realizado. Saldo actual: ${cuentaSeleccionada.obtenerSaldo()}")
-                } else {
-                    println("Monto inválido")
-                }
+                } else println("Monto inválido")
             }
-
             2 -> {
                 print("Ingrese monto a extraer: ")
                 val monto = reader.nextDouble()
-                if (monto > 0) {
-                    val exito = cuentaSeleccionada.extraer(monto)
-                    if (exito) {
-                        println("Extracción realizada. Saldo actual: ${cuentaSeleccionada.obtenerSaldo()}")
-                    } else {
-                        println("Fondos insuficientes.")
-                    }
-                } else {
-                    println("Monto inválido")
+                if (!cuentaSeleccionada.extraer(monto)) {
+                    println("Fondos insuficientes.")
                 }
             }
-
-            3 -> {
-                println("Saldo disponible: ${cuentaSeleccionada.obtenerSaldo()}")
-            }
-
+            3 -> println("Saldo disponible: ${cuentaSeleccionada.obtenerSaldo()}")
             4 -> {
                 println("=== Historial de transacciones ===")
-                if (cuentaSeleccionada.obtenerTransacciones().isEmpty()) {
-                    println("No hay transacciones registradas.")
-                } else {
-                    cuentaSeleccionada.obtenerTransacciones().forEach {
-                        println(" - ${it::class.simpleName} de ${it.monto} el ${it.fecha.format(formatter)}")
-                    }
+                cuentaSeleccionada.obtenerTransacciones().forEach {
+                    println(" - ${it::class.simpleName} de ${it.monto} el ${it.fecha.format(formatter)}")
                 }
             }
-
             5 -> {
-                println("Transferencia")
                 println("Seleccione cuenta destino:")
-                println("1. Juani (${cuenta1.numeroCuenta})")
-                println("2. Joaquín (${cuenta2.numeroCuenta})")
-
-                val destinoOpcion = reader.nextInt()
-                val cuentaDestino = when (destinoOpcion) {
-                    1 -> cuenta1
-                    2 -> cuenta2
-                    else -> null
+                banco.listarCuentas().forEachIndexed { index, cuenta ->
+                    if (cuenta != cuentaSeleccionada) {
+                        println("${index + 1}. ${cuenta.usuario.nombre} ${cuenta.usuario.apellido}")
+                    }
                 }
-
+                val destino = reader.nextInt()
+                val cuentaDestino = banco.listarCuentas().getOrNull(destino - 1)
                 if (cuentaDestino != null && cuentaDestino != cuentaSeleccionada) {
                     print("Ingrese monto a transferir: ")
                     val monto = reader.nextDouble()
-                    if (monto > 0) {
-                        val exito = cuentaSeleccionada.transferir(monto, cuentaDestino)
-                        if (exito) {
-                            println("Transferencia realizada.")
-                            println("Saldo actual de origen: ${cuentaSeleccionada.obtenerSaldo()}")
-                            println("Saldo actual de destino: ${cuentaDestino.obtenerSaldo()}")
-                        } else {
-                            println("Fondos insuficientes.")
-                        }
-                    } else {
-                        println("Monto inválido")
-                    }
-                } else {
-                    println("Cuenta destino inválida.")
-                }
+                    if (cuentaSeleccionada.transferir(monto, cuentaDestino)) {
+                        println("Transferencia realizada con éxito.")
+                    } else println("Fondos insuficientes.")
+                } else println("Cuenta destino inválida")
             }
-
             0 -> println("Gracias por usar el sistema. ¡Hasta luego!")
-            else -> println("Opción inválida, intente de nuevo.")
+            else -> println("Opción inválida")
         }
     } while (opcionAccion != 0)
 }
-
