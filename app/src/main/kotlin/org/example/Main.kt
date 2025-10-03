@@ -1,3 +1,8 @@
+package org.example
+import java.time.format.DateTimeFormatter
+import java.util.Scanner
+import kotlin.system.exitProcess
+
 fun main() {
     val reader = Scanner(System.`in`)
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -27,12 +32,13 @@ fun main() {
         val saldo = reader.nextDouble()
         reader.nextLine()
 
-        val usuario = Usuario(id, nombre, apellido, dni)
-        banco.agregarCuenta(usuario, saldo)
+    val usuario = Usuario(id, nombre, apellido, dni)
+    val cuenta = Cuenta("123456", saldo, usuario)
+    banco.agregarCuenta(cuenta)
     }
 
     println("=== Todas las cuentas registradas ===")
-    banco.listarCuentas().forEach {
+    banco.obtenerCuentas().forEach {
         println("Usuario: ${it.usuario.nombre} ${it.usuario.apellido} | Cuenta: ${it.numeroCuenta} | Saldo: ${it.obtenerSaldo()}")
     }
 
@@ -42,15 +48,15 @@ fun main() {
 
     do {
         println("Seleccione un usuario:")
-        banco.listarCuentas().forEachIndexed { index, cuenta ->
+        banco.obtenerCuentas().forEachIndexed { index, cuenta ->
             println("${index + 1}. ${cuenta.usuario.nombre} ${cuenta.usuario.apellido}")
         }
         println("0. Salir")
         print("Opción: ")
         opcionUsuario = reader.nextInt()
 
-        cuentaSeleccionada = if (opcionUsuario in 1..banco.listarCuentas().size) {
-            banco.listarCuentas()[opcionUsuario - 1]
+        cuentaSeleccionada = if (opcionUsuario in 1..banco.obtenerCuentas().size) {
+            banco.obtenerCuentas()[opcionUsuario - 1]
         } else null
 
         if (opcionUsuario != 0 && cuentaSeleccionada == null) {
@@ -101,13 +107,13 @@ fun main() {
             }
             5 -> {
                 println("Seleccione cuenta destino:")
-                banco.listarCuentas().forEachIndexed { index, cuenta ->
+                banco.obtenerCuentas().forEachIndexed { index, cuenta ->
                     if (cuenta != cuentaSeleccionada) {
                         println("${index + 1}. ${cuenta.usuario.nombre} ${cuenta.usuario.apellido}")
                     }
                 }
                 val destino = reader.nextInt()
-                val cuentaDestino = banco.listarCuentas().getOrNull(destino - 1)
+                val cuentaDestino = banco.obtenerCuentas().getOrNull(destino - 1)
                 if (cuentaDestino != null && cuentaDestino != cuentaSeleccionada) {
                     print("Ingrese monto a transferir: ")
                     val monto = reader.nextDouble()
