@@ -7,14 +7,13 @@ fun main() {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     val banco = Banco()
-    val servicio = ServicioBancario(banco) // ✅ nueva capa de servicio
+    val servicio = ServicioBancario(banco) 
 
     println("=== Sistema Bancario ===")
     print("¿Cuántos usuarios desea registrar? ")
     val cantidadUsuarios = reader.nextInt()
     reader.nextLine()
 
-    // 🔁 ahora usamos el servicio para crear cada cuenta
     repeat(cantidadUsuarios) { i ->
         println("=== Registro de usuario ${i + 1} ===")
         print("Ingrese ID: ")
@@ -117,7 +116,7 @@ fun main() {
                 if (cuentaDestino != null && cuentaDestino != cuentaSeleccionada) {
                     print("Ingrese monto a transferir: ")
                     val monto = reader.nextDouble()
-                    if (servicio.transferir(cuentaSeleccionada, cuentaDestino, monto)) { // ✅ ahora usa ServicioBancario
+                    if (servicio.transferir(cuentaSeleccionada, cuentaDestino, monto)) { 
                         println("Transferencia realizada con éxito.")
                     } else println("Fondos insuficientes.")
                 } else println("Cuenta destino inválida")
