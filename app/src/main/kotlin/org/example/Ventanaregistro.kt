@@ -24,7 +24,6 @@ class VentanaRegistro(private val app: AplicacionBancaria) : JFrame("Registro de
     private fun crearInterfaz() {
         layout = BorderLayout()
 
-        // Header con logo del banco
         val header = JPanel().apply {
             background = Color(26, 35, 126)
             preferredSize = Dimension(width, 80)
