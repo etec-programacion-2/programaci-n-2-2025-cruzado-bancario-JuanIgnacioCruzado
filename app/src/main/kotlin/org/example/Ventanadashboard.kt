@@ -28,7 +28,6 @@ class VentanaDashboard(
     private fun crearInterfaz() {
         layout = BorderLayout()
 
-        // Header con logo del banco
         val header = JPanel().apply {
             background = Color(26, 35, 126)
             preferredSize = Dimension(width, 70)

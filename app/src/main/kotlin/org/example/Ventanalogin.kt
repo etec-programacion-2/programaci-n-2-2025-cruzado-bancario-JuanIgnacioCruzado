@@ -21,7 +21,6 @@ class VentanaLogin(private val app: AplicacionBancaria) : JFrame("Inicio de Sesi
     private fun crearInterfaz() {
         layout = BorderLayout()
 
-        // Header con logo del banco
         val header = JPanel().apply {
             background = Color(26, 35, 126)
             preferredSize = Dimension(width, 80)
@@ -34,14 +33,12 @@ class VentanaLogin(private val app: AplicacionBancaria) : JFrame("Inicio de Sesi
         }
         header.add(logoLabel)
 
-        // Panel principal con dos columnas
         val panelPrincipal = JPanel().apply {
             layout = GridLayout(1, 2, 40, 0)
             background = Color(245, 247, 250)
             border = BorderFactory.createEmptyBorder(60, 80, 60, 80)
         }
 
-        // Columna izquierda - LOGIN
         val panelLogin = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
@@ -91,7 +88,6 @@ class VentanaLogin(private val app: AplicacionBancaria) : JFrame("Inicio de Sesi
         panelLogin.add(Box.createRigidArea(Dimension(0, 30)))
         panelLogin.add(botonLogin)
 
-        // Columna derecha - REGISTRO
         val panelRegistro = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             background = Color.WHITE
